@@ -3,6 +3,13 @@
 import "./globals.css";
 import { useEffect, useState } from "react";
 import { Loading } from "./components/loading";
+import { Comic_Neue } from "next/font/google";
+
+// ✅ Fonte vinda do Google (global)
+const comicNeue = Comic_Neue({
+  subsets: ["latin"],
+  weight: ["400", "700"],
+});
 
 export default function RootLayout({
   children,
@@ -22,7 +29,7 @@ export default function RootLayout({
 
   return (
     <html lang="pt-BR">
-      <body style={{ fontFamily: "'Comic Neue', cursive" }}>
+      <body className={comicNeue.className}>
         {loading ? <Loading /> : children}
       </body>
     </html>
