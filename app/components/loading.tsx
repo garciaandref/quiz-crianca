@@ -1,0 +1,74 @@
+"use client";
+
+import React from "react";
+import Image from "next/image";
+
+export function Loading() {
+  const phrase = "Quiz Animado";
+  const letters = phrase.split("");
+
+  return (
+    <div
+      style={{
+        height: "100vh",
+        width: "100%",
+        position: "relative",
+        overflow: "hidden",
+        fontFamily: "'Comic Neue', cursive",
+        display: "flex",
+        justifyContent: "center",
+        alignItems: "center",
+        flexDirection: "column",
+        color: "#ff6f00",
+        fontWeight: 700,
+        fontSize: "5rem",
+        textShadow: "3px 3px 6px rgba(0,0,0,0.35)",
+      }}
+    >
+      <Image
+        src="/Jesus_v2.png"
+        alt="Jesus"
+        fill
+        priority
+        style={{ objectFit: "cover", zIndex: -1 }}
+      />
+
+      <div className="glow" style={{ display: "flex" }}>
+        {letters.map((letter, i) => (
+          <span
+            key={i}
+            style={{
+              display: "inline-block",
+              animation: "dropBounce 0.8s ease forwards",
+              animationDelay: `${i * 0.3}s`,
+              opacity: 0,
+              whiteSpace: "pre",
+            }}
+          >
+            {letter}
+          </span>
+        ))}
+      </div>
+
+      <style>
+        {`
+          @keyframes dropBounce {
+            0% { transform: translateY(-100px); opacity: 0; }
+            70% { transform: translateY(10px); opacity: 1; }
+            100% { transform: translateY(0); opacity: 1; }
+          }
+
+          @keyframes glowPulse {
+            0% { text-shadow: 0 0 10px #ff9800; }
+            50% { text-shadow: 0 0 40px #ffeb3b; }
+            100% { text-shadow: 0 0 10px #ff9800; }
+          }
+
+          .glow {
+            animation: glowPulse 1.5s ease-in-out infinite;
+          }
+        `}
+      </style>
+    </div>
+  );
+}

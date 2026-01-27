@@ -1,27 +1,30 @@
-{
-  /* app/layout.tsx */
-}
-import "./globals.css";
+"use client";
 
-export const metadata = {
-  title: "Quiz Criança",
-  description: "Quiz divertido para crianças",
-};
+import "./globals.css";
+import { useEffect, useState } from "react";
+import { Loading } from "./components/loading";
 
 export default function RootLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    // ⏱️ TEMPO TOTAL DO LOADING (frase + brilho)
+    const timer = setTimeout(() => {
+      setLoading(false);
+    }, 4000); // ⬅️ controle REAL aqui
+
+    return () => clearTimeout(timer);
+  }, []);
+
   return (
     <html lang="pt-BR">
-      <head>
-        <link
-          href="https://fonts.googleapis.com/css2?family=Comic+Neue:wght@400;700&display=swap"
-          rel="stylesheet"
-        />
-      </head>
-      <body>{children}</body>
+      <body style={{ fontFamily: "'Comic Neue', cursive" }}>
+        {loading ? <Loading /> : children}
+      </body>
     </html>
   );
 }
