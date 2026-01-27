@@ -1,66 +1,64 @@
-import Image from "next/image";
-import styles from "./page.module.css";
+"use client";
 
-export default function Home() {
+import React, { useState } from "react";
+import { QuizContainer } from "./components/quiz-container";
+import styled from "styled-components";
+
+const Input = styled.input`
+  width: 80%;
+  padding: 0.7rem;
+  margin: 1rem 0;
+  font-size: 1rem;
+  border-radius: 12px;
+  border: 2px solid #ff6f61;
+  outline: none;
+  text-align: center;
+`;
+
+const Button = styled.button`
+  padding: 0.8rem 1.5rem;
+  margin: 0.5rem;
+  font-size: 1rem;
+  border-radius: 12px;
+  border: none;
+  cursor: pointer;
+  background-color: #ffd54f;
+  color: #333;
+  font-weight: bold;
+  transition: transform 0.1s;
+
+  &:hover {
+    transform: scale(1.05);
+  }
+`;
+
+export default function HomePage() {
+  const [name, setName] = useState("");
+
+  const handleStart = () => {
+    if (typeof window !== "undefined") {
+      localStorage.setItem("playerName", name || "Anônimo");
+      window.location.href = "/quiz";
+    }
+  };
+
+  const handleRanking = () => {
+    window.location.href = "/ranking";
+  };
+
   return (
-    <div className={styles.page}>
-      <main className={styles.main}>
-        <Image
-          className={styles.logo}
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className={styles.intro}>
-          <h1>To get started, edit the page.tsx file.</h1>
-          <p>
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
-        </div>
-        <div className={styles.ctas}>
-          <a
-            className={styles.primary}
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className={styles.logo}
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className={styles.secondary}
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
-        </div>
-      </main>
-    </div>
+    <QuizContainer>
+      <h1>🎉 Quiz Bíblico Infantil</h1>
+      <p>Digite seu nome para começar a jogar!</p>
+      <Input
+        placeholder="Seu nome"
+        value={name}
+        onChange={(e) => setName(e.target.value)}
+      />
+      <div>
+        <Button onClick={handleStart}>Começar Quiz</Button>
+        <Button onClick={handleRanking}>Ver Ranking</Button>
+      </div>
+    </QuizContainer>
   );
 }
