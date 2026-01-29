@@ -4,8 +4,7 @@ import React from "react";
 import Image from "next/image";
 
 export function Loading() {
-  const phrase = "Quiz Animado";
-  const letters = phrase.split("");
+  const lines = ["Quiz", "Animado"]; // 👈 duas linhas fixas
 
   return (
     <div
@@ -25,6 +24,7 @@ export function Loading() {
         textShadow: "3px 3px 6px rgba(0,0,0,0.35)",
       }}
     >
+      {/* Fundo */}
       <Image
         src="/Jesus_v2.png"
         alt="Jesus"
@@ -33,20 +33,32 @@ export function Loading() {
         style={{ objectFit: "cover", zIndex: -1 }}
       />
 
-      <div className="glow" style={{ display: "flex" }}>
-        {letters.map((letter, i) => (
-          <span
-            key={i}
-            style={{
-              display: "inline-block",
-              animation: "dropBounce 0.8s ease forwards",
-              animationDelay: `${i * 0.3}s`,
-              opacity: 0,
-              whiteSpace: "pre",
-            }}
-          >
-            {letter}
-          </span>
+      {/* Texto */}
+      <div
+        className="glow"
+        style={{
+          display: "flex",
+          flexDirection: "column", // 👈 quebra em linhas
+          alignItems: "center",
+          gap: "0.2em",
+        }}
+      >
+        {lines.map((line, lineIndex) => (
+          <div key={lineIndex} style={{ display: "flex" }}>
+            {line.split("").map((letter, i) => (
+              <span
+                key={i}
+                style={{
+                  display: "inline-block",
+                  animation: "dropBounce 0.8s ease forwards",
+                  animationDelay: `${(lineIndex * 6 + i) * 0.3}s`,
+                  opacity: 0,
+                }}
+              >
+                {letter}
+              </span>
+            ))}
+          </div>
         ))}
       </div>
 
