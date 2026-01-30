@@ -1,54 +1,86 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { QuizContainer } from "../components/quiz-container";
 
 interface RankingEntry {
   name: string;
-  score: number;
+  points: number;
 }
 
 export default function RankingPage() {
-  // Inicializa o ranking a partir do localStorage de forma segura
-  const [ranking] = useState<RankingEntry[]>(() => {
-    if (typeof window !== "undefined") {
-      const stored = localStorage.getItem("quizRanking");
-      return stored ? JSON.parse(stored) : [];
-    }
-    return [];
-  });
+  const [ranking, setRanking] = useState<RankingEntry[]>([]);
+  const [loading, setLoading] = useState(true);
+  const victoryPlayed = useRef(false);
 
-  // Ordena do maior para o menor e pega top 10
-  const topRanking = ranking
-    .slice()
-    .sort((a, b) => b.score - a.score)
-    .slice(0, 10);
+  // 📡 Carrega ranking do banco
+  useEffect(() => {
+    fetch("/api/ranking")
+      .then((res) => res.json())
+      .then((data) => {
+        setRanking(data);
+        setLoading(false);
+      })
+      .catch(() => setLoading(false));
+  }, []);
+
+  // 🏆 Som de vitória + pausa música de fundo (1x)
+  useEffect(() => {
+    if (!loading && ranking.length > 0 && !victoryPlayed.current) {
+      // 🔕 avisa a música de fundo para parar
+      window.dispatchEvent(new Event("victory-sound"));
+
+      const audio = new Audio("/sounds/victory.mp3");
+      audio.volume = 0.6;
+      audio.play().catch(() => {});
+
+      victoryPlayed.current = true;
+    }
+  }, [loading, ranking]);
+
+  const medal = (index: number) => {
+    if (index === 0) return "🥇";
+    if (index === 1) return "🥈";
+    if (index === 2) return "🥉";
+    return null;
+  };
 
   return (
     <QuizContainer>
       <h2
         style={{
-          fontSize: "2rem",
-          color: "#ff6f00",
+          fontSize: "2.2rem",
+          color: "#ffca28",
           textAlign: "center",
-          marginBottom: "1rem",
+          marginBottom: "1.5rem",
+          textShadow: "0 0 14px rgba(255,202,40,0.9)",
         }}
       >
-        🏆 Ranking Top 10
+        🏆 Ranking dos Campeões
       </h2>
 
-      {topRanking.length === 0 ? (
-        <p style={{ textAlign: "center", fontSize: "1.2rem" }}>
-          Nenhuma pontuação registrada ainda.
-        </p>
+      {loading ? (
+        <p style={{ textAlign: "center" }}>Carregando ranking...</p>
       ) : (
         <ol style={{ listStyle: "none", padding: 0, width: "100%" }}>
-          {topRanking.map((entry, idx) => {
-            // Destaque para os 3 primeiros
-            let bgColor = "#29b6f6"; // padrão azul
-            if (idx === 0) bgColor = "#ffd700"; // ouro
-            if (idx === 1) bgColor = "#c0c0c0"; // prata
-            if (idx === 2) bgColor = "#cd7f32"; // bronze
+          {ranking.map((entry, idx) => {
+            const isTop3 = idx < 3;
+
+            let bgColor = "#26c6da";
+            let glow = "none";
+
+            if (idx === 0) {
+              bgColor = "#ffd700";
+              glow = "0 0 28px gold";
+            }
+            if (idx === 1) {
+              bgColor = "#c0c0c0";
+              glow = "0 0 18px silver";
+            }
+            if (idx === 2) {
+              bgColor = "#cd7f32";
+              glow = "0 0 18px #cd7f32";
+            }
 
             return (
               <li
@@ -57,49 +89,66 @@ export default function RankingPage() {
                   backgroundColor: bgColor,
                   color: "#fff",
                   fontWeight: "bold",
-                  fontSize: "1.2rem",
-                  marginBottom: "0.5rem",
-                  padding: "0.75rem 1rem",
-                  borderRadius: "12px",
+                  fontSize: "1.3rem",
+                  marginBottom: "0.75rem",
+                  padding: "0.9rem 1.2rem",
+                  borderRadius: "16px",
                   display: "flex",
                   justifyContent: "space-between",
                   alignItems: "center",
-                  boxShadow: "0 4px 6px rgba(0,0,0,0.1)",
+                  boxShadow: glow,
+                  animation: "slideIn 0.6s ease forwards",
+                  animationDelay: `${idx * 0.15}s`,
+                  opacity: 0,
+                  transform: "translateX(-30px)",
                 }}
               >
-                <span>{entry.name}</span>
-                <span>{entry.score} pts</span>
+                <span
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "0.6rem",
+                  }}
+                >
+                  {isTop3 && <span className="medal">{medal(idx)}</span>}
+                  {idx + 1}º — {entry.name}
+                </span>
+
+                <span>{entry.points} pts</span>
               </li>
             );
           })}
         </ol>
       )}
 
-      {/* Botão de voltar ao início */}
-      <div
-        style={{ display: "flex", justifyContent: "center", marginTop: "2rem" }}
-      >
-        <button
-          onClick={() => (window.location.href = "/")}
-          style={{
-            backgroundColor: "#ff6f00",
-            color: "#fff",
-            fontSize: "1.2rem",
-            padding: "0.75rem 2rem",
-            borderRadius: "12px",
-            border: "none",
-            cursor: "pointer",
-            boxShadow: "0 4px 6px rgba(0,0,0,0.2)",
-            transition: "transform 0.2s",
-          }}
-          onMouseEnter={(e) =>
-            (e.currentTarget.style.transform = "scale(1.05)")
+      <style>
+        {`
+          @keyframes slideIn {
+            to {
+              opacity: 1;
+              transform: translateX(0);
+            }
           }
-          onMouseLeave={(e) => (e.currentTarget.style.transform = "scale(1)")}
-        >
-          🏠 Voltar ao início
-        </button>
-      </div>
+
+          .medal {
+            font-size: 2rem;
+            animation:
+              medalPulse 1.5s ease-in-out infinite,
+              medalBounce 2s ease-in-out infinite;
+          }
+
+          @keyframes medalPulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.15); }
+            100% { transform: scale(1); }
+          }
+
+          @keyframes medalBounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-6px); }
+          }
+        `}
+      </style>
     </QuizContainer>
   );
 }
