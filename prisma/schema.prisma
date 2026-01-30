@@ -1,0 +1,53 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Player {
+  id        String   @id @default(uuid())
+  name      String   @unique
+  scores    Score[]
+  createdAt DateTime @default(now())
+}
+
+model Score {
+  id        String   @id @default(uuid())
+  points    Int
+
+  playerId String
+  quizId   String?
+
+  player   Player @relation(fields: [playerId], references: [id])
+  quiz     Quiz?  @relation(fields: [quizId], references: [id])
+
+  createdAt DateTime @default(now())
+}
+
+/* 🔽 mantém seu quiz */
+model Quiz {
+  id        String     @id @default(uuid())
+  title     String
+  createdAt DateTime   @default(now())
+  questions Question[]
+  scores    Score[]   // 👈 necessário para o ranking
+}
+
+model Question {
+  id        String    @id @default(uuid())
+  text      String
+  quizId    String
+  quiz      Quiz      @relation(fields: [quizId], references: [id])
+  answers   Answer[]
+}
+
+model Answer {
+  id         String   @id @default(uuid())
+  text       String
+  isCorrect  Boolean  @default(false)
+  questionId String
+  question   Question @relation(fields: [questionId], references: [id])
+}

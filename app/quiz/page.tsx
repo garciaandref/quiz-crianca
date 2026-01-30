@@ -21,6 +21,21 @@ const optionColors = [
   "#ff7043", // laranja
 ];
 
+/* ✅ NOVO: função para salvar pontuação */
+async function saveScore(name: string, score: number) {
+  await fetch("/api/score", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      name,
+      score,
+      quizId: null,
+    }),
+  });
+}
+
 export default function QuizPage() {
   const [playerName] = useState(() => {
     if (typeof window !== "undefined") {
@@ -53,6 +68,12 @@ export default function QuizPage() {
   const cancelQuiz = () => {
     resetQuiz();
     window.location.href = "/";
+  };
+
+  /* ✅ NOVO: finaliza quiz salvando pontuação */
+  const handleFinalizeQuiz = async () => {
+    await saveScore(playerName, totalScore);
+    finalizeQuiz();
   };
 
   // --- Quiz finalizado ---
@@ -132,7 +153,7 @@ export default function QuizPage() {
             </p>
             <AnswerButton
               label="Ver pontuação final"
-              onClick={finalizeQuiz}
+              onClick={handleFinalizeQuiz} // ✅ ALTERADO AQUI
               style={{ backgroundColor: "#8e24aa", color: "#fff" }}
             />
           </>
@@ -151,6 +172,7 @@ export default function QuizPage() {
       <p style={{ fontSize: "1.2rem", margin: "1rem 0", color: "#bf360c" }}>
         {currentQuestion?.question}
       </p>
+
       {currentQuestion?.options.map((opt, idx) => (
         <AnswerButton
           key={opt}
@@ -164,7 +186,6 @@ export default function QuizPage() {
         />
       ))}
 
-      {/* Botão de cancelar quiz */}
       <div style={{ marginTop: "1rem" }}>
         <AnswerButton
           label="❌ Cancelar Quiz"
